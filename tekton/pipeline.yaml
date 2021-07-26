@@ -29,6 +29,22 @@ spec:
       #remember to fork you acount inside github
       value: https://github.com/cloud-native-garage-method-cohort/nicola-bertoli-app.git
 
+
+# NPM test execution
+
+  - name: run-tests
+    taskRef:
+      name: npm
+    workspaces:
+    - name: source
+      workspace: pipeline-shared-data
+    params:
+    - name: ARGS
+      value:
+      - install-ci-test
+    runAfter: 
+      - clone-repository
+
 # creazione build
 
   - name: build-image
@@ -36,10 +52,44 @@ spec:
       kind: ClusterTask
       name: buildah
     runAfter:
-      - clone-repository
+      - run-tests
     params:
     - name: IMAGE
       value: "quay.io/nicolabe92/buildah-assignment:$(tasks.clone-repository.results.commit)"
     workspaces:
     - name: source
       workspace: pipeline-shared-data
+
+# customization
+  - name: kustomize-build
+    runAfter:
+      - build-image
+    params:
+      - name: app-name
+        value: "$(params.app-name)"
+      - name: app-namespace
+        value: "$(context.pipelineRun.namespace)"
+      - name: image-with-tag
+        value: "$(params.image-repo):$(tasks.clone-repository.results.commit)"
+    taskRef:
+      kind: Task
+      name: kustomize-build
+    workspaces:
+      - name: source
+        workspace: pipeline-shared-data
+
+# apply manifest
+  - name: test-deploy
+    taskRef:
+      kind: Task
+      name: test-deploy
+    params:
+      - name: app-name
+        value: "$(params.app-name)"
+      - name: app-namespace
+        value: "$(context.pipelineRun.namespace)"
+    workspaces:
+      - name: source
+        workspace: pipeline-shared-data
+    runAfter:
+      - kustomize-build
