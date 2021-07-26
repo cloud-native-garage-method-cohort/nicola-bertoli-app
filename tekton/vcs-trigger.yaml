@@ -61,7 +61,7 @@ spec:
           name: buildah-assignment-pipeline
         params:
           - name: image-repo
-            value: quay.io/<your-quay-io-user-name>/buildah-assignment
+            value: quay.io/nicolabe92/buildah-assignment
           - name: app-name
             value: buildah-assignment
         workspaces:
