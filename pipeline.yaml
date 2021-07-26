@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildah-assignment-pipeline
+spec:
+  params:
+    - name: image-repo
+      type: string
+      description: Docker image name
+    - name: app-name
+      type: string
+      description: the name of the app
+  workspaces:
+  - name: pipeline-shared-data #where to put git repository
+  tasks:
+
+# git clone
+
+
+  - name: clone-repository
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: pipeline-shared-data
+    params:
+    - name: url
+      #remember to fork you acount inside github
+      value: https://github.com/cloud-native-garage-method-cohort/nicola-bertoli-app.git
+
+# creazione build
+
+  - name: build-image
+    taskRef:
+      kind: ClusterTask
+      name: buildah
+    runAfter:
+      - clone-repository
+    params:
+    - name: IMAGE
+      value: "quay.io/nicolabe92/buildah-assignment:$(tasks.clone-repository.results.commit)"
+    workspaces:
+    - name: source
+      workspace: pipeline-shared-data
