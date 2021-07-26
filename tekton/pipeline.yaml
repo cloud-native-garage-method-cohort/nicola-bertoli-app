@@ -39,7 +39,7 @@ spec:
       - clone-repository
     params:
     - name: IMAGE
-      value: "quay.io/nicolabe92/express-sample-app:$(tasks.clone-repository.results.commit)"
+      value: "quay.io/nicolabe92/buildah-assignment:$(tasks.clone-repository.results.commit)"
     workspaces:
     - name: source
       workspace: pipeline-shared-data
