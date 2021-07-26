@@ -11,7 +11,7 @@ spec:
       type: string
       description: the name of the app
   workspaces:
-  - name: pipeline-shared-data #where to put git repository
+  - name: pipeline-shared-data
   tasks:
 
 # git clone
